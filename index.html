@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>QR Studio</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+
+--accent:#00f5ff;
+--accent2:#ff4ecd;
+
+--bg:#0a0a0f;
+
+--glass:rgba(255,255,255,0.06);
+
+--border:rgba(255,255,255,0.12);
+
+--text-muted:rgba(255,255,255,0.6);
+
+}
+
+*{
+
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+
+}
+
+/* background */
+
+body{
+
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+
+background:#0a0a0f;
+
+overflow:hidden;
+
+position:relative;
+
+}
+
+/* glow lights */
+
+body::before{
+
+content:"";
+
+position:absolute;
+
+width:900px;
+height:900px;
+
+background:radial-gradient(circle,rgba(0,245,255,0.2),transparent 60%);
+
+top:-300px;
+left:-200px;
+
+filter:blur(100px);
+
+}
+
+body::after{
+
+content:"";
+
+position:absolute;
+
+width:800px;
+height:800px;
+
+background:radial-gradient(circle,rgba(255,78,205,0.2),transparent 60%);
+
+bottom:-250px;
+right:-200px;
+
+filter:blur(100px);
+
+}
+
+/* card */
+
+.container{
+
+width:440px;
+
+padding:48px;
+
+background:var(--glass);
+
+backdrop-filter:blur(30px);
+
+border-radius:24px;
+
+border:1px solid var(--border);
+
+box-shadow:
+
+0 0 60px rgba(0,245,255,0.15),
+
+0 40px 80px rgba(0,0,0,0.7);
+
+text-align:center;
+
+color:white;
+
+}
+
+/* title */
+
+h1{
+
+font-size:2.3rem;
+
+font-weight:700;
+
+letter-spacing:-1px;
+
+background:linear-gradient(90deg,#00f5ff,#ff4ecd);
+
+-webkit-background-clip:text;
+
+-webkit-text-fill-color:transparent;
+
+margin-bottom:10px;
+
+}
+
+.subtitle{
+
+font-size:14px;
+
+color:var(--text-muted);
+
+margin-bottom:30px;
+
+}
+
+/* input */
+
+input{
+
+width:100%;
+
+padding:16px;
+
+background:#0f0f17;
+
+border:1px solid rgba(255,255,255,0.08);
+
+border-radius:14px;
+
+color:white;
+
+font-size:15px;
+
+margin-bottom:25px;
+
+transition:0.3s;
+
+}
+
+input:focus{
+
+border-color:var(--accent);
+
+box-shadow:0 0 20px rgba(0,245,255,0.3);
+
+outline:none;
+
+}
+
+/* buttons */
+
+.buttons{
+
+display:grid;
+
+grid-template-columns:1.2fr 1fr;
+
+gap:12px;
+
+}
+
+button{
+
+padding:14px;
+
+border:none;
+
+border-radius:14px;
+
+cursor:pointer;
+
+font-weight:600;
+
+font-size:14px;
+
+transition:0.3s;
+
+}
+
+/* generate */
+
+.generate{
+
+background:linear-gradient(135deg,#00f5ff,#00ffa6);
+
+color:black;
+
+}
+
+.generate:hover{
+
+transform:translateY(-2px);
+
+box-shadow:0 10px 30px rgba(0,255,200,0.4);
+
+}
+
+/* download */
+
+.download{
+
+background:rgba(255,255,255,0.06);
+
+border:1px solid var(--border);
+
+color:white;
+
+}
+
+.download:hover{
+
+background:rgba(255,255,255,0.15);
+
+}
+
+/* qr display */
+
+.qr-display{
+
+margin-top:30px;
+
+opacity:0;
+
+transform:scale(0.9);
+
+transition:0.5s;
+
+}
+
+.qr-display.active{
+
+opacity:1;
+
+transform:scale(1);
+
+}
+
+img{
+
+background:white;
+
+padding:16px;
+
+border-radius:20px;
+
+box-shadow:0 15px 35px rgba(0,0,0,0.5);
+
+max-width:100%;
+
+}
+
+/* footer */
+
+.footer{
+
+margin-top:30px;
+
+font-size:11px;
+
+letter-spacing:1px;
+
+color:var(--text-muted);
+
+}
+
+/* mobile */
+
+@media(max-width:450px){
+
+.container{
+
+width:92%;
+
+padding:35px 25px;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>⚡ QR Studio</h1>
+
+<p class="subtitle">Premium QR code generator</p>
+
+<input type="text" id="url" placeholder="https://example.com">
+
+<div class="buttons">
+
+<button class="generate" onclick="generateQR()">Generate</button>
+
+<button class="download" onclick="downloadQR()">Download</button>
+
+</div>
+
+<div class="qr-display" id="qrDisplay">
+
+<img id="qrImage" width="220">
+
+</div>
+
+<p class="footer">Built by Shiva 🚀</p>
+
+</div>
+
+<script>
+
+let qrURL=""
+
+function generateQR(){
+
+let url=document.getElementById("url").value
+
+if(!url){
+
+document.getElementById("url").style.borderColor="red"
+
+setTimeout(()=>{
+
+document.getElementById("url").style.borderColor="rgba(255,255,255,0.08)"
+
+},2000)
+
+return
+
+}
+
+qrURL=`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}`
+
+const img=document.getElementById("qrImage")
+
+const display=document.getElementById("qrDisplay")
+
+img.src=qrURL
+
+img.onload=()=>{
+
+display.classList.add("active")
+
+}
+
+}
+
+function downloadQR(){
+
+if(!qrURL){
+
+alert("Generate QR first")
+
+return
+
+}
+
+fetch(qrURL)
+
+.then(res=>res.blob())
+
+.then(blob=>{
+
+let link=document.createElement("a")
+
+link.href=URL.createObjectURL(blob)
+
+link.download="qr-studio-export.png"
+
+link.click()
+
+})
+
+}
+
+</script>
+
+</body>
+
+</html>
